@@ -1,0 +1,2524 @@
+<!DOCTYPE html>
+<html lang="az" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SINAQLAR.AZ - Premium PDF Platform</title>
+    <meta name="description" content="Azərbaycanın ən böyük sınaq PDF platforması. 5,000+ PDF, Premium üzvlük, Offline rejim.">
+    
+    <!-- PWA -->
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiU8SxbmFxIFBERiIsInNob3J0X25hbWUiOiJTSU5BUSIsInN0YXJ0X3VybCI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMWUzYzcyIiwidGhlbWVfY29sb3IiOiIjZmZmZmZmIn0=">
+    <meta name="theme-color" content="#1e3c72">
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <style>
+        :root {
+            --bg-primary: #f0f2f5;
+            --bg-secondary: #ffffff;
+            --text-primary: #1a1a2e;
+            --text-secondary: #666666;
+            --accent-primary: #667eea;
+            --accent-secondary: #764ba2;
+            --success: #4CAF50;
+            --warning: #ff9800;
+            --error: #f44336;
+            --premium: #ffd700;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-primary: #8b9dc3;
+            --accent-secondary: #9b59b6;
+            --shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: var(--transition);
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+        
+        /* Premium Banner */
+        .premium-banner {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1001;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            font-size: 0.95rem;
+        }
+        
+        .premium-btn {
+            background: #333;
+            color: #ffd700;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: var(--transition);
+        }
+        
+        .premium-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            padding: 15px 20px;
+            position: fixed;
+            width: 100%;
+            top: 48px;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .logo {
+            font-size: 1.6rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo .premium-badge {
+            background: var(--premium);
+            color: #333;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            display: none;
+        }
+        
+        .logo .premium-badge.active {
+            display: inline;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .icon-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .icon-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+        
+        .credits-display {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .credits-display.premium {
+            background: var(--premium);
+            color: #333;
+            font-weight: bold;
+        }
+        
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 120px 15px 20px;
+        }
+        
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        @media (max-width: 768px) {
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+        
+        /* Schedule Section */
+        .schedule-section {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .year-badge {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            padding: 6px 15px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background: var(--bg-primary);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            color: var(--text-secondary);
+        }
+        
+        .tab.active {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+        }
+        
+        .exam-table {
+            display: none;
+            overflow-x: auto;
+        }
+        
+        .exam-table.active {
+            display: block;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        
+        th {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            color: var(--text-primary);
+        }
+        
+        tr:hover {
+            background: var(--bg-primary);
+        }
+        
+        .grade-badge {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .date-badge {
+            background: #ffebee;
+            color: #c62828;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        
+        .exam-type {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .type-buraxilis { background: #e3f2fd; color: #1976d2; }
+        .type-qebul { background: #f3e5f5; color: #7b1fa2; }
+        .type-xususi { background: #fce4ec; color: #c2185b; }
+        
+        /* Search Section */
+        .search-section {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+        }
+        
+        .search-filters {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: end;
+        }
+        
+        @media (max-width: 768px) {
+            .search-filters {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .input-group label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        input, select {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+        
+        .voice-btn {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .voice-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .voice-btn.listening {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .search-btn {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .exam-types {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .exam-types {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .exam-type-card {
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: var(--radius);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--bg-primary);
+        }
+        
+        .exam-type-card:hover, .exam-type-card.active {
+            border-color: var(--accent-primary);
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        .exam-type-card .icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        
+        .subject-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
+            background: var(--bg-primary);
+            border-radius: var(--radius);
+        }
+        
+        .subject-chip {
+            padding: 8px 16px;
+            background: var(--bg-secondary);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .subject-chip:hover, .subject-chip.active {
+            border-color: var(--accent-primary);
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+        }
+        
+        /* Results */
+        .results-section {
+            margin-bottom: 25px;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .view-toggle {
+            display: flex;
+            gap: 5px;
+            background: var(--bg-secondary);
+            padding: 5px;
+            border-radius: 8px;
+        }
+        
+        .view-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+        
+        .view-btn.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .results-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        /* PDF Card */
+        .pdf-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .pdf-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .pdf-card.premium-locked {
+            opacity: 0.7;
+        }
+        
+        .pdf-card.premium-locked::after {
+            content: '🔒 PREMIUM';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.85);
+            color: var(--premium);
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            z-index: 10;
+        }
+        
+        .pdf-card.featured::before {
+            content: '⭐ POPULYAR';
+            position: absolute;
+            top: 10px;
+            right: -30px;
+            background: #ffd700;
+            color: #333;
+            padding: 5px 40px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            transform: rotate(45deg);
+            z-index: 5;
+        }
+        
+        .fav-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: var(--transition);
+            z-index: 5;
+        }
+        
+        .fav-btn:hover, .fav-btn.active {
+            background: #ff4757;
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .pdf-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            position: relative;
+        }
+        
+        .pdf-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        
+        .badge {
+            padding: 4px 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-grammar { background: #e3f2fd; color: #1976d2; }
+        .badge-text { background: #f3e5f5; color: #7b1fa2; }
+        .badge-mixed { background: #e8f5e9; color: #388e3c; }
+        
+        .pdf-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+        
+        .pdf-body {
+            padding: 20px;
+        }
+        
+        .pdf-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .pdf-meta-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .pdf-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .btn-primary {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #45a049;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-premium {
+            background: linear-gradient(135deg, var(--premium), #ff8c00);
+            color: #333;
+        }
+        
+        .btn-icon {
+            width: 40px;
+            padding: 10px;
+        }
+        
+        /* Premium Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            max-width: 900px;
+            width: 100%;
+            padding: 30px;
+            position: relative;
+            animation: slideUp 0.5s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        
+        .premium-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .premium-header h2 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--premium), #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .pricing-card {
+            background: var(--bg-primary);
+            border-radius: var(--radius);
+            padding: 25px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .pricing-card.featured {
+            border-color: var(--premium);
+            transform: scale(1.05);
+        }
+        
+        .pricing-card.featured::before {
+            content: 'ƏN POPULYAR';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--premium);
+            color: #333;
+            padding: 5px 15px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        
+        .price {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--accent-primary);
+            margin: 15px 0;
+        }
+        
+        .price span {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+        
+        .features-list {
+            list-style: none;
+            text-align: left;
+            margin: 20px 0;
+        }
+        
+        .features-list li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .features-list li::before {
+            content: '✓';
+            color: var(--success);
+            font-weight: bold;
+        }
+        
+        .stripe-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            width: 100%;
+            transition: var(--transition);
+        }
+        
+        .stripe-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* PDF Viewer */
+        .pdf-viewer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            z-index: 3000;
+            flex-direction: column;
+        }
+        
+        .pdf-viewer.active {
+            display: flex;
+        }
+        
+        .pdf-toolbar {
+            background: #333;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .pdf-tools {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .tool-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .tool-btn:hover, .tool-btn.active {
+            background: var(--accent-primary);
+        }
+        
+        .pdf-container {
+            flex: 1;
+            overflow: auto;
+            padding: 20px;
+            background: #525659;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        
+        #pdf-canvas {
+            max-width: 100%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        
+        /* Timer Widget */
+        .timer-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            z-index: 500;
+            display: none;
+            min-width: 220px;
+        }
+        
+        .timer-widget.active {
+            display: block;
+            animation: slideUpWidget 0.3s ease;
+        }
+        
+        @keyframes slideUpWidget {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .timer-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            color: var(--accent-primary);
+            font-family: monospace;
+            margin-bottom: 15px;
+        }
+        
+        .timer-controls {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .timer-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        
+        /* Chatbot */
+        .chatbot-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            z-index: 600;
+            transition: var(--transition);
+        }
+        
+        .chatbot-toggle:hover {
+            transform: scale(1.1);
+        }
+        
+        .chatbot-widget {
+            position: fixed;
+            bottom: 90px;
+            left: 20px;
+            width: 350px;
+            max-height: 500px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            z-index: 550;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        @media (max-width: 480px) {
+            .chatbot-widget {
+                width: calc(100% - 40px);
+                left: 20px;
+                right: 20px;
+            }
+        }
+        
+        .chatbot-widget.active {
+            display: flex;
+        }
+        
+        .chatbot-header {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chatbot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 300px;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 12px;
+            border-radius: 15px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+        
+        .message.user {
+            align-self: flex-end;
+            background: var(--accent-primary);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .message.bot {
+            align-self: flex-start;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border-bottom-left-radius: 5px;
+        }
+        
+        .chatbot-input {
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid var(--bg-primary);
+        }
+        
+        .chatbot-input input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            outline: none;
+        }
+        
+        /* Gamification */
+        .gamification-bar {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 0 var(--radius) var(--radius) 0;
+            box-shadow: var(--shadow);
+            z-index: 400;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        @media (max-width: 768px) {
+            .gamification-bar {
+                top: auto;
+                bottom: 100px;
+                left: 20px;
+                transform: none;
+                flex-direction: row;
+                padding: 15px;
+                border-radius: var(--radius);
+            }
+        }
+        
+        .level-badge {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--premium), #ff8c00);
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.3rem;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+        
+        .level-badge::after {
+            content: attr(data-level);
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            background: var(--success);
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .xp-bar {
+            width: 12px;
+            height: 120px;
+            background: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        @media (max-width: 768px) {
+            .xp-bar {
+                width: 120px;
+                height: 12px;
+            }
+        }
+        
+        .xp-fill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(to top, var(--success), #8bc34a);
+            transition: height 0.5s ease;
+            border-radius: 6px;
+        }
+        
+        @media (max-width: 768px) {
+            .xp-fill {
+                height: 100% !important;
+                width: var(--xp-percent, 75%) !important;
+            }
+        }
+        
+        /* QR Modal */
+        .qr-modal .modal-content {
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        #qrcode {
+            margin: 20px auto;
+            padding: 15px;
+            background: white;
+            display: inline-block;
+            border-radius: 10px;
+        }
+        
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 6000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .toast {
+            background: #333;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            box-shadow: var(--shadow);
+            animation: toastSlide 0.3s ease;
+            text-align: center;
+            max-width: 400px;
+        }
+        
+        @keyframes toastSlide {
+            from { transform: translateX(-50%) translateY(50px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+        
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--error); }
+        .toast.info { background: var(--accent-primary); }
+        
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 5000;
+            flex-direction: column;
+        }
+        
+        .loading-overlay.active {
+            display: flex;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Admin Panel */
+        .admin-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 400px;
+            height: 100%;
+            background: var(--bg-secondary);
+            box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+            z-index: 1500;
+            padding: 25px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .admin-panel.active {
+            display: block;
+            animation: slideRight 0.3s ease;
+        }
+        
+        @keyframes slideRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        
+        @media (max-width: 480px) {
+            .admin-panel {
+                width: 100%;
+            }
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .admin-stat {
+            background: var(--bg-primary);
+            padding: 20px;
+            border-radius: var(--radius);
+            text-align: center;
+        }
+        
+        .admin-stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--accent-primary);
+        }
+        
+        /* User Dropdown */
+        .user-dropdown {
+            position: absolute;
+            top: 55px;
+            right: 0;
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            min-width: 200px;
+            display: none;
+            overflow: hidden;
+        }
+        
+        .user-dropdown.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .dropdown-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .dropdown-item:hover {
+            background: var(--bg-primary);
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Premium Banner -->
+    <div class="premium-banner" id="premiumBanner">
+        ⭐ PREMIUM: Limitsiz PDF yükləmə, offline rejim, AI köməkçi və daha çoxu!
+        <button class="premium-btn" onclick="openPremiumModal()">Premium Al - 5 AZN/ay</button>
+    </div>
+    
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                📚 SINAQLAR.AZ
+                <span class="premium-badge" id="userPremiumBadge">PREMIUM</span>
+            </div>
+            <div class="header-actions">
+                <div class="credits-display" id="creditsDisplay">
+                    💳 Kredit: <span id="creditCount">3</span>/3
+                </div>
+                <button class="icon-btn" onclick="openPremiumModal()" title="Premium">⭐</button>
+                <button class="icon-btn" onclick="toggleTheme()" title="Tema">🌙</button>
+                <button class="icon-btn" onclick="toggleTimer()" title="Taymer">⏱️</button>
+                <button class="icon-btn" onclick="toggleAdmin()" title="Admin">⚙️</button>
+                <div style="position: relative;">
+                    <button class="icon-btn" onclick="toggleUserMenu()" title="Profil">👤</button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="dropdown-item" onclick="showProfile()">👤 Profilim</div>
+                        <div class="dropdown-item" onclick="showFavorites()">⭐ Sevimlilər</div>
+                        <div class="dropdown-item" onclick="showDownloads()">⬇️ Yükləmələrim</div>
+                        <div class="dropdown-item" onclick="showStats()">📊 Statistikam</div>
+                        <div class="dropdown-item" onclick="showSettings()">⚙️ Tənzimləmələr</div>
+                        <div class="dropdown-item" onclick="logout()">🚪 Çıxış</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-icon">📚</div>
+                <div class="stat-value">5,000+</div>
+                <div class="stat-label">PDF Sınaq</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👨‍🎓</div>
+                <div class="stat-value">12.5K</div>
+                <div class="stat-label">İstifadəçi</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⬇️</div>
+                <div class="stat-value" id="todayDownloads">1,234</div>
+                <div class="stat-label">Bugün yükləmə</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏆</div>
+                <div class="stat-value" id="userLevel">12</div>
+                <div class="stat-label">Səviyyəniz</div>
+            </div>
+        </div>
+        
+        <!-- Schedule Section -->
+        <div class="schedule-section">
+            <div class="section-header">
+                <h2 class="section-title">📅 2026/2027 İmtahan Cədvəli</h2>
+                <span class="year-badge">DİM RƏSMİ</span>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('buraxilis')">Buraxılış (9,11)</button>
+                <button class="tab" onclick="showTab('qebul')">Qəbul</button>
+                <button class="tab" onclick="showTab('xususi')">Xüsusi</button>
+                <button class="tab" onclick="showTab('meqtebdaxili')">Məktəbdaxili (5-8)</button>
+            </div>
+            
+            <div id="buraxilis" class="exam-table active">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sinif</th>
+                            <th>İmtahan</th>
+                            <th>Tarix</th>
+                            <th>Zona</th>
+                            <th>Fənnlər</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="grade-badge">11</span></td>
+                            <td><span class="exam-type type-buraxilis">Buraxılış</span></td>
+                            <td><span class="date-badge">9 mart 2026</span></td>
+                            <td>I Zona</td>
+                            <td>Azərbaycan dili, Riyaziyyat, Xarici dil</td>
+                        </tr>
+                        <tr>
+                            <td><span class="grade-badge">11</span></td>
+                            <td><span class="exam-type type-buraxilis">Buraxılış</span></td>
+                            <td><span class="date-badge">15 mart 2026</span></td>
+                            <td>II Zona</td>
+                            <td>Azərbaycan dili, Riyaziyyat, Xarici dil</td>
+                        </tr>
+                        <tr>
+                            <td><span class="grade-badge">9</span></td>
+                            <td><span class="exam-type type-buraxilis">Buraxılış</span></td>
+                            <td><span class="date-badge">5 aprel 2026</span></td>
+                            <td>I Zona</td>
+                            <td>Azərbaycan dili, Riyaziyyat, Xarici dil</td>
+                        </tr>
+                        <tr>
+                            <td><span class="grade-badge">9</span></td>
+                            <td><span class="exam-type type-buraxilis">Buraxılış</span></td>
+                            <td><span class="date-badge">12 aprel 2026</span></td>
+                            <td>II Zona</td>
+                            <td>Azərbaycan dili, Riyaziyyat, Xarici dil</td>
+                        </tr>
+                        <tr>
+                            <td><span class="grade-badge">9</span></td>
+                            <td><span class="exam-type type-buraxilis">Buraxılış</span></td>
+                            <td><span class="date-badge">26 aprel 2026</span></td>
+                            <td>III Zona</td>
+                            <td>Azərbaycan dili, Riyaziyyat, Xarici dil</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="qebul" class="exam-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Təhsil</th>
+                            <th>İmtahan</th>
+                            <th>Tarix</th>
+                            <th>Qeydiyyat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="grade-badge">Bakalavriat</span></td>
+                            <td><span class="exam-type type-qebul">Qəbul I mərhələ</span></td>
+                            <td><span class="date-badge">19 aprel 2026</span></td>
+                            <td>18 fevral - 5 mart</td>
+                        </tr>
+                        <tr>
+                            <td><span class="grade-badge">Bakalavriat</span></td>
+                            <td><span class="exam-type type-qebul">Qəbul II mərhələ</span></td>
+                            <td><span class="date-badge">May-İyun 2026</span></td>
+                            <td>Aprel-May</td>
+                        </tr>
+                        <tr>
+                            <td><span class="grade-badge">Magistr</span></td>
+                            <td><span class="exam-type type-qebul">Magistratura</span></td>
+                            <td><span class="date-badge">15 fevral 2026</span></td>
+                            <td>14-26 yanvar</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="xususi" class="exam-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sinif</th>
+                            <th>İmtahan</th>
+                            <th>Tarix</th>
+                            <th>Qeyd</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="grade-badge">5</span></td>
+                            <td><span class="exam-type type-xususi">DSX Məktəbi</span></td>
+                            <td><span class="date-badge">5 aprel 2026</span></td>
+                            <td>Dövlət Sərhəd Xidməti</td>
+                        </tr>
+                        <tr>
+                            <td><span class="grade-badge">5-11</span></td>
+                            <td><span class="exam-type type-xususi">Kurs Sınaqları</span></td>
+                            <td>Davamlı</td>
+                            <td>Hedef, Zəka, İdrak və s.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="meqtebdaxili" class="exam-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Siniflər</th>
+                            <th>Qiymətləndirmə</th>
+                            <th>Tarix</th>
+                            <th>Fənnlər</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="grade-badge">5-8</span></td>
+                            <td>Summativ</td>
+                            <td>İlin ərzində</td>
+                            <td>Bütün fənnlər</td>
+                        </tr>
+                        <tr>
+                            <td><span class="grade-badge">5-8</span></td>
+                            <td>BSQ</td>
+                            <td>MQT 4-8</td>
+                            <td>Azərbaycan dili, Riyaziyyat</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="section-header">
+                <h2 class="section-title">🔍 PDF Axtarış</h2>
+                <button class="voice-btn" id="voiceBtn" onclick="startVoiceSearch()">
+                    <span>🎙️</span>
+                    <span>Səsli axtar</span>
+                </button>
+            </div>
+            
+            <div class="search-filters">
+                <div class="input-group">
+                    <label>Kurs və ya Lisey</label>
+                    <input type="text" id="searchInput" placeholder="Məs: Dərs Evi, Zəka, İdrak..." onkeypress="if(event.key==='Enter') search()">
+                </div>
+                <div class="input-group">
+                    <label>Sinif</label>
+                    <select id="gradeSelect">
+                        <option value="all">Bütün siniflər (5-11)</option>
+                        <option value="5">5-ci sinif</option>
+                        <option value="6">6-cı sinif</option>
+                        <option value="7">7-ci sinif</option>
+                        <option value="8">8-ci sinif</option>
+                        <option value="9">9-cu sinif</option>
+                        <option value="10">10-cu sinif</option>
+                        <option value="11">11-ci sinif</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>İl</label>
+                    <select id="yearSelect">
+                        <option value="2026">2026</option>
+                        <option value="2027">2027</option>
+                        <option value="all">Hamısı</option>
+                    </select>
+                </div>
+                <button class="search-btn" onclick="search()">🔍 Axtar</button>
+            </div>
+            
+            <div class="exam-types">
+                <div class="exam-type-card active" onclick="selectExamType('all')" id="type-all">
+                    <div class="icon">📋</div>
+                    <div>Hamısı</div>
+                </div>
+                <div class="exam-type-card" onclick="selectExamType('grammar')" id="type-grammar">
+                    <div class="icon">📝</div>
+                    <div>Qrammatika</div>
+                </div>
+                <div class="exam-type-card" onclick="selectExamType('text')" id="type-text">
+                    <div class="icon">📖</div>
+                    <div>Mətn</div>
+                </div>
+                <div class="exam-type-card" onclick="selectExamType('mixed')" id="type-mixed">
+                    <div class="icon">🎯</div>
+                    <div>Qarışıq</div>
+                </div>
+            </div>
+            
+            <div class="subject-filters">
+                <div class="subject-chip active" onclick="toggleSubject(this, 'azerbaycan')">📚 Azərbaycan dili</div>
+                <div class="subject-chip" onclick="toggleSubject(this, 'riyaziyyat')">🔢 Riyaziyyat</div>
+                <div class="subject-chip" onclick="toggleSubject(this, 'ingilis')">🇬🇧 İngilis dili</div>
+                <div class="subject-chip" onclick="toggleSubject(this, 'rus')">🇷🇺 Rus dili</div>
+                <div class="subject-chip" onclick="toggleSubject(this, 'fizika')">⚛️ Fizika</div>
+                <div class="subject-chip" onclick="toggleSubject(this, 'kimya')">⚗️ Kimya</div>
+                <div class="subject-chip" onclick="toggleSubject(this, 'biologiya')">🧬 Biologiya</div>
+                <div class="subject-chip" onclick="toggleSubject(this, 'tarix')">🏛️ Tarix</div>
+                <div class="subject-chip" onclick="toggleSubject(this, 'cografiya')">🌍 Coğrafiya</div>
+            </div>
+        </div>
+        
+        <!-- Recommendations -->
+        <div id="recommendations" style="display: none; margin-bottom: 25px;">
+            <h3 style="margin-bottom: 15px;">🎯 Sizin üçün tövsiyələr</h3>
+            <div class="results-grid" id="rec-grid"></div>
+        </div>
+        
+        <!-- Results -->
+        <div class="results-section">
+            <div class="results-header">
+                <h2 class="section-title">📄 Nəticələr (<span id="resultCount">0</span>)</h2>
+                <div class="view-toggle">
+                    <button class="view-btn active" onclick="setView('grid')">⊞ Grid</button>
+                    <button class="view-btn" onclick="setView('list')">☰ Siyahı</button>
+                </div>
+            </div>
+            <div class="results-grid" id="resultsContainer"></div>
+        </div>
+    </div>
+    
+    <!-- Gamification Sidebar -->
+    <div class="gamification-bar">
+        <div class="level-badge" data-level="12" id="levelBadge">🏆</div>
+        <div class="xp-bar">
+            <div class="xp-fill" id="xpFill" style="height: 75%;"></div>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary);">
+            XP: <span id="xpText">750/1000</span>
+        </div>
+    </div>
+    
+    <!-- Timer Widget -->
+    <div class="timer-widget" id="timerWidget">
+        <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 10px;">
+            ⏱️ Sınaq taymeri
+        </div>
+        <div class="timer-display" id="timerDisplay">03:00:00</div>
+        <div class="timer-controls">
+            <button class="timer-btn" style="background: var(--success); color: white;" onclick="startTimer()">▶ Başla</button>
+            <button class="timer-btn" style="background: var(--warning); color: white;" onclick="pauseTimer()">⏸ Dayan</button>
+            <button class="timer-btn" style="background: var(--error); color: white;" onclick="resetTimer()">↺ Sıfırla</button>
+        </div>
+    </div>
+    
+    <!-- Chatbot -->
+    <button class="chatbot-toggle" onclick="toggleChatbot()" id="chatbotToggle">🤖</button>
+    <div class="chatbot-widget" id="chatbotWidget">
+        <div class="chatbot-header">
+            <span>🤖 AI Köməkçi</span>
+            <button style="background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer;" onclick="toggleChatbot()">✕</button>
+        </div>
+        <div class="chatbot-messages" id="chatMessages">
+            <div class="message bot">Salam! Mən SINAQLAR.AZ AI köməkçisiyəm. Sizə necə kömək edə bilərəm?</div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chatInput" placeholder="Mesaj yazın..." onkeypress="if(event.key==='Enter') sendMessage()">
+            <button style="background: var(--accent-primary); color: white; border: none; padding: 10px 15px; border-radius: 20px; cursor: pointer;" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+    
+    <!-- Premium Modal -->
+    <div class="modal" id="premiumModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('premiumModal')">✕</button>
+            <div class="premium-header">
+                <h2>⭐ PREMIUM ÜZVLÜK</h2>
+                <p>Bütün imkanlardan limitsiz istifadə edin!</p>
+            </div>
+            
+            <div class="pricing-cards">
+                <div class="pricing-card">
+                    <h3>🥈 Aylıq</h3>
+                    <div class="price">5 AZN<span>/ay</span></div>
+                    <ul class="features-list">
+                        <li>Limitsiz PDF yükləmə</li>
+                        <li>Offline rejim</li>
+                        <li>PDF annotator</li>
+                        <li>AI köməkçi</li>
+                        <li>Reklamsız</li>
+                        <li>Prioritet dəstək</li>
+                    </ul>
+                    <button class="stripe-btn" onclick="checkout('monthly')">💳 İndi Al - 5 AZN</button>
+                </div>
+                
+                <div class="pricing-card featured">
+                    <h3>🥇 İllik</h3>
+                    <div class="price">50 AZN<span>/il</span></div>
+                    <div style="background: var(--success); color: white; display: inline-block; padding: 5px 15px; border-radius: 15px; font-size: 0.85rem; margin-bottom: 15px;">17% qənaət</div>
+                    <ul class="features-list">
+                        <li>Limitsiz PDF yükləmə</li>
+                        <li>Offline rejim</li>
+                        <li>PDF annotator</li>
+                        <li>AI köməkçi</li>
+                        <li>Reklamsız</li>
+                        <li>Prioritet dəstək</li>
+                        <li>🎁 2 ay hədiyyə</li>
+                        <li>Video izahlar</li>
+                    </ul>
+                    <button class="stripe-btn" onclick="checkout('yearly')">💳 İndi Al - 50 AZN</button>
+                </div>
+                
+                <div class="pricing-card">
+                    <h3>💎 Lifetime</h3>
+                    <div class="price">199 AZN<span>bir dəfə</span></div>
+                    <ul class="features-list">
+                        <li>Bütün illik funksiyalar</li>
+                        <li>Ömürlük giriş</li>
+                        <li>Bütün gələcək yeniliklər</li>
+                        <li>VIP dəstək</li>
+                        <li>Şəxsi mentor</li>
+                    </ul>
+                    <button class="stripe-btn" onclick="checkout('lifetime')">💳 İndi Al - 199 AZN</button>
+                </div>
+            </div>
+            
+            <p style="text-align: center; color: var(--text-secondary); font-size: 0.9rem; margin-top: 20px;">
+                🔒 Stripe ilə təhlükəsiz ödəniş. Kart məlumatlarınız saxlanmır.
+            </p>
+        </div>
+    </div>
+    
+    <!-- QR Modal -->
+    <div class="modal qr-modal" id="qrModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('qrModal')">✕</button>
+            <h3>📱 QR Kod ilə paylaş</h3>
+            <div id="qrcode"></div>
+            <p style="margin-top: 15px; color: var(--text-secondary); font-size: 0.9rem;">
+                Telefonunuzun kamerası ilə skan edin
+            </p>
+        </div>
+    </div>
+    
+    <!-- PDF Viewer -->
+    <div class="pdf-viewer" id="pdfViewer">
+        <div class="pdf-toolbar">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button class="tool-btn" onclick="closePDFViewer()">✕ Bağla</button>
+                <span id="viewerTitle" style="font-weight: 600;">PDF Viewer</span>
+            </div>
+            <div class="pdf-tools">
+                <button class="tool-btn" onclick="prevPage()">◀ Əvvəlki</button>
+                <span id="pageNum">Səhifə 1/10</span>
+                <button class="tool-btn" onclick="nextPage()">Sonrakı ▶</button>
+                <button class="tool-btn" onclick="zoomOut()">-</button>
+                <span id="zoomLevel">100%</span>
+                <button class="tool-btn" onclick="zoomIn()">+</button>
+                <button class="tool-btn" id="annotateBtn" onclick="toggleAnnotate()">✏️ Qeyd</button>
+                <button class="tool-btn" onclick="downloadCurrentPDF()">⬇️ Yüklə</button>
+            </div>
+        </div>
+        <div class="pdf-container" id="pdfContainer">
+            <canvas id="pdfCanvas"></canvas>
+        </div>
+    </div>
+    
+    <!-- Admin Panel -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-header">
+            <h2>⚙️ Admin Panel</h2>
+            <button class="icon-btn" onclick="toggleAdmin()" style="background: var(--bg-primary); color: var(--text-primary); width: 35px; height: 35px;">✕</button>
+        </div>
+        
+        <div class="admin-grid">
+            <div class="admin-stat">
+                <div class="admin-stat-value" id="adminUsers">1,234</div>
+                <div>Aktiv istifadəçi</div>
+            </div>
+            <div class="admin-stat">
+                <div class="admin-stat-value" id="adminPDFs">5,678</div>
+                <div>Ümumi PDF</div>
+            </div>
+            <div class="admin-stat">
+                <div class="admin-stat-value" id="adminDownloads">45.2K</div>
+                <div>Yükləmə</div>
+            </div>
+            <div class="admin-stat">
+                <div class="admin-stat-value" id="adminOnline">89</div>
+                <div>Online indi</div>
+            </div>
+        </div>
+        
+        <canvas id="adminChart" style="max-height: 200px; margin-bottom: 25px;"></canvas>
+        
+        <h3 style="margin-bottom: 15px;">📤 Yeni PDF əlavə et</h3>
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            <input type="file" id="adminFile" accept=".pdf" style="padding: 10px;">
+            <input type="text" id="adminTitle" placeholder="Başlıq" style="padding: 12px;">
+            <select id="adminGrade" style="padding: 12px;">
+                <option value="">Sinif seçin</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+            </select>
+            <select id="adminSubject" style="padding: 12px;">
+                <option value="">Fənn seçin</option>
+                <option value="azerbaycan">Azərbaycan dili</option>
+                <option value="riyaziyyat">Riyaziyyat</option>
+                <option value="ingilis">İngilis dili</option>
+            </select>
+            <button class="btn btn-primary" onclick="addNewPDF()">Əlavə et</button>
+        </div>
+    </div>
+    
+    <!-- Loading -->
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+        <p style="color: white; margin-top: 15px;">Yüklənir...</p>
+    </div>
+    
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <script>
+        // === BÜTÜN JAVASCRIPT KODU ===
+        
+        // Global dəyişənlər
+        let currentUser = null;
+        let isPremium = false;
+        let credits = 3;
+        let currentResults = [];
+        let favorites = new Set();
+        let downloads = [];
+        let currentPDF = null;
+        let pdfDoc = null;
+        let currentPage = 1;
+        let zoom = 1;
+        let isAnnotating = false;
+        let timerInterval;
+        let timerSeconds = 10800; // 3 saat
+        let xp = 750;
+        let level = 12;
+        let currentExamType = 'all';
+        let activeSubjects = ['azerbaycan'];
+        
+        // Stripe (demo key)
+        const stripe = Stripe('pk_test_demo_key');
+        
+        // İlkin yükləmə
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTheme();
+            loadFavorites();
+            updateUI();
+            search();
+            
+            // Service Worker qeydiyyatı
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('data:text/javascript;base64,' + btoa(`
+                    self.addEventListener('install', e => self.skipWaiting());
+                    self.addEventListener('activate', e => self.clients.claim());
+                    self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => new Response('Offline'))));
+                `)).catch(() => console.log('SW qeydiyyatı uğursuz'));
+            }
+        });
+        
+        // 1. TEMA FUNKSIYALARI
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const next = current === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            showToast(next === 'dark' ? '🌙 Gecə rejimi' : '☀️ Gündüz rejimi', 'info');
+        }
+        
+        function loadTheme() {
+            const saved = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', saved);
+        }
+        
+        // 2. TAB FUNKSIYALARI
+        function showTab(tabName) {
+            document.querySelectorAll('.exam-table').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        // 3. AXTARIŞ FUNKSIYALARI
+        function selectExamType(type) {
+            currentExamType = type;
+            document.querySelectorAll('.exam-type-card').forEach(c => c.classList.remove('active'));
+            document.getElementById('type-' + type).classList.add('active');
+        }
+        
+        function toggleSubject(chip, subject) {
+            chip.classList.toggle('active');
+            if (chip.classList.contains('active')) {
+                activeSubjects.push(subject);
+            } else {
+                activeSubjects = activeSubjects.filter(s => s !== subject);
+            }
+        }
+        
+        function startVoiceSearch() {
+            const btn = document.getElementById('voiceBtn');
+            
+            if (!('webkitSpeechRecognition' in window)) {
+                showToast('❌ Səsli axtarış dəstəklənmir', 'error');
+                return;
+            }
+            
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'az-AZ';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            
+            recognition.onstart = () => {
+                btn.classList.add('listening');
+                btn.innerHTML = '<span>🔴</span><span>Dinləyirəm...</span>';
+            };
+            
+            recognition.onresult = (e) => {
+                const transcript = e.results[0][0].transcript;
+                document.getElementById('searchInput').value = transcript;
+                btn.classList.remove('listening');
+                btn.innerHTML = '<span>🎙️</span><span>Səsli axtar</span>';
+                search();
+                showToast(`🎤 "${transcript}" axtarıldı`, 'success');
+            };
+            
+            recognition.onerror = () => {
+                btn.classList.remove('listening');
+                btn.innerHTML = '<span>🎙️</span><span>Səsli axtar</span>';
+                showToast('❌ Səs tanınmadı', 'error');
+            };
+            
+            recognition.start();
+        }
+        
+        // 4. AXTARIŞ VƏ NƏTICƏLƏR
+        async function search() {
+            showLoading(true);
+            
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const grade = document.getElementById('gradeSelect').value;
+            const year = document.getElementById('yearSelect').value;
+            
+            await new Promise(r => setTimeout(r, 800));
+            
+            currentResults = generateMockResults(query, grade, year);
+            displayResults(currentResults);
+            generateRecommendations();
+            
+            showLoading(false);
+            showToast(`🔍 ${currentResults.length} nəticə tapıldı`, 'success');
+        }
+        
+        function generateMockResults(query, grade, year) {
+            const schools = ['Dərs Evi', 'İdrak', 'Zəka', 'Qərb', 'Cəngavər', 'Hedef', 'Bilik'];
+            const subjects = ['Azərbaycan dili', 'Riyaziyyat', 'İngilis dili', 'Fizika', 'Kimya', 'Biologiya'];
+            const types = ['grammar', 'text', 'mixed'];
+            const results = [];
+            
+            for (let i = 0; i < 12; i++) {
+                const g = grade === 'all' ? 5 + Math.floor(Math.random() * 7) : parseInt(grade);
+                const school = schools[Math.floor(Math.random() * schools.length)];
+                const subject = subjects[Math.floor(Math.random() * subjects.length)];
+                const type = currentExamType === 'all' ? types[Math.floor(Math.random() * 3)] : currentExamType;
+                
+                results.push({
+                    id: 'pdf_' + i,
+                    title: `${school} - ${g}. Sinif ${subject} ${type === 'grammar' ? 'Qrammatika' : type === 'text' ? 'Mətn' : 'Qarışıq'} Sınaq ${i+1}`,
+                    school: school,
+                    grade: g,
+                    subject: subject,
+                    type: type,
+                    year: year === 'all' ? '2026' : year,
+                    date: '2026-03-15',
+                    pages: 10 + Math.floor(Math.random() * 20),
+                    size: (0.5 + Math.random() * 3).toFixed(1) + ' MB',
+                    downloads: Math.floor(Math.random() * 1000),
+                    featured: Math.random() > 0.8,
+                    url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+                    free: i < 3 // İlk 3 pulsuz
+                });
+            }
+            
+            return results.sort((a, b) => a.grade - b.grade);
+        }
+        
+        function displayResults(results) {
+            const container = document.getElementById('resultsContainer');
+            document.getElementById('resultCount').textContent = results.length;
+            
+            if (results.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">😕 Nəticə tapılmadı</div>';
+                return;
+            }
+            
+            container.innerHTML = results.map((pdf, i) => createPDFCard(pdf, i)).join('');
+            updateFavoriteButtons();
+        }
+        
+        function createPDFCard(pdf, index) {
+            const typeLabels = { grammar: 'Qrammatika', text: 'Mətn', mixed: 'Qarışıq' };
+            const isLocked = !pdf.free && !isPremium;
+            
+            return `
+                <div class="pdf-card ${pdf.featured ? 'featured' : ''} ${isLocked ? 'premium-locked' : ''}" onclick="${isLocked ? 'openPremiumModal()' : `openPDFViewer('${pdf.id}')`}">
+                    <button class="fav-btn ${favorites.has(pdf.id) ? 'active' : ''}" data-id="${pdf.id}" onclick="toggleFavorite('${pdf.id}', event)">
+                        ${favorites.has(pdf.id) ? '❤️' : '🤍'}
+                    </button>
+                    <div class="pdf-header">
+                        <div class="pdf-badges">
+                            <span class="badge">${typeLabels[pdf.type]}</span>
+                            <span class="badge">${pdf.grade}. sinif</span>
+                        </div>
+                        <div class="pdf-title">${pdf.title}</div>
+                    </div>
+                    <div class="pdf-body">
+                        <div class="pdf-meta">
+                            <div class="pdf-meta-row">
+                                <span>🏫 ${pdf.school}</span>
+                                <span>📚 ${pdf.subject}</span>
+                            </div>
+                            <div class="pdf-meta-row">
+                                <span>📅 ${pdf.year}</span>
+                                <span>📄 ${pdf.pages} səhifə</span>
+                                <span>💾 ${pdf.size}</span>
+                            </div>
+                            <div class="pdf-meta-row">
+                                <span>⬇️ ${pdf.downloads} yüklənmə</span>
+                            </div>
+                        </div>
+                        <div class="pdf-actions">
+                            ${isLocked ? `
+                                <button class="btn btn-premium" onclick="event.stopPropagation(); openPremiumModal()">
+                                    🔒 Premium ilə Aç
+                                </button>
+                            ` : `
+                                <button class="btn btn-primary" onclick="event.stopPropagation(); downloadPDF('${pdf.id}')">
+                                    ⬇️ Yüklə
+                                </button>
+                                <button class="btn btn-secondary btn-icon" onclick="event.stopPropagation(); showQR('${pdf.id}')" title="QR">📱</button>
+                                <button class="btn btn-secondary btn-icon" onclick="event.stopPropagation(); sharePDF('${pdf.id}')" title="Paylaş">📤</button>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function setView(view) {
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const container = document.getElementById('resultsContainer');
+            container.className = view === 'list' ? 'results-list' : 'results-grid';
+        }
+        
+        // 5. SEVIMLILƏR
+        function toggleFavorite(pdfId, event) {
+            event.stopPropagation();
+            
+            if (favorites.has(pdfId)) {
+                favorites.delete(pdfId);
+                showToast('⭐ Sevimlilərdən çıxarıldı', 'info');
+            } else {
+                favorites.add(pdfId);
+                showToast('⭐ Sevimlilərə əlavə edildi!', 'success');
+                addXP(10);
+            }
+            
+            localStorage.setItem('favorites', JSON.stringify([...favorites]));
+            updateFavoriteButtons();
+        }
+        
+        function loadFavorites() {
+            const saved = localStorage.getItem('favorites');
+            if (saved) {
+                favorites = new Set(JSON.parse(saved));
+            }
+        }
+        
+        function updateFavoriteButtons() {
+            document.querySelectorAll('.fav-btn').forEach(btn => {
+                const id = btn.dataset.id;
+                if (favorites.has(id)) {
+                    btn.classList.add('active');
+                    btn.innerHTML = '❤️';
+                } else {
+                    btn.classList.remove('active');
+                    btn.innerHTML = '🤍';
+                }
+            });
+        }
+        
+        // 6. PDF YÜKLƏMƏ
+        async function downloadPDF(pdfId) {
+            if (!isPremium) {
+                if (credits <= 0) {
+                    openPremiumModal();
+                    return;
+                }
+                credits--;
+                document.getElementById('creditCount').textContent = credits;
+                updateUI();
+            }
+            
+            const pdf = currentResults.find(p => p.id === pdfId);
+            if (!pdf) return;
+            
+            showToast(`📥 "${pdf.title.substring(0, 30)}..." yüklənir`, 'info');
+            
+            try {
+                const response = await fetch(pdf.url);
+                const blob = await response.blob();
+                saveAs(blob, pdf.title.replace(/[^a-z0-9]/gi, '_') + '.pdf');
+                
+                downloads.push({ pdfId, title: pdf.title, date: new Date() });
+                localStorage.setItem('downloads', JSON.stringify(downloads));
+                
+                addXP(15);
+                showToast('✅ Yükləmə tamamlandı!', 'success');
+            } catch (err) {
+                showToast('❌ Yükləmə xətası', 'error');
+            }
+        }
+        
+        // 7. PDF VIEWER
+        async function openPDFViewer(pdfId) {
+            const pdf = currentResults.find(p => p.id === pdfId);
+            if (!pdf) return;
+            
+            currentPDF = pdf;
+            document.getElementById('viewerTitle').textContent = pdf.title;
+            document.getElementById('pdfViewer').classList.add('active');
+            
+            // Demo - real PDF.js ilə əvəz edin
+            showToast('📄 PDF açılır...', 'info');
+        }
+        
+        function closePDFViewer() {
+            document.getElementById('pdfViewer').classList.remove('active');
+            pdfDoc = null;
+        }
+        
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                document.getElementById('pageNum').textContent = `Səhifə ${currentPage}/10`;
+            }
+        }
+        
+        function nextPage() {
+            if (currentPage < 10) {
+                currentPage++;
+                document.getElementById('pageNum').textContent = `Səhifə ${currentPage}/10`;
+            }
+        }
+        
+        function zoomIn() {
+            zoom += 0.25;
+            document.getElementById('zoomLevel').textContent = Math.round(zoom * 100) + '%';
+        }
+        
+        function zoomOut() {
+            if (zoom > 0.25) {
+                zoom -= 0.25;
+                document.getElementById('zoomLevel').textContent = Math.round(zoom * 100) + '%';
+            }
+        }
+        
+        function toggleAnnotate() {
+            isAnnotating = !isAnnotating;
+            document.getElementById('annotateBtn').classList.toggle('active', isAnnotating);
+            showToast(isAnnotating ? '✏️ Qeyd rejimi aktiv' : '✏️ Qeyd rejimi deaktiv', 'info');
+        }
+        
+        function downloadCurrentPDF() {
+            if (currentPDF) {
+                downloadPDF(currentPDF.id);
+            }
+        }
+        
+        // 8. QR KOD
+        function showQR(pdfId) {
+            const pdf = currentResults.find(p => p.id === pdfId);
+            if (!pdf) return;
+            
+            const modal = document.getElementById('qrModal');
+            const container = document.getElementById('qrcode');
+            container.innerHTML = '';
+            
+            new QRCode(container, {
+                text: `${window.location.origin}/pdf/${pdfId}`,
+                width: 200,
+                height: 200,
+                colorDark: '#1e3c72',
+                colorLight: '#ffffff'
+            });
+            
+            modal.classList.add('active');
+        }
+        
+        // 9. PAYLAŞMA
+        async function sharePDF(pdfId) {
+            const pdf = currentResults.find(p => p.id === pdfId);
+            if (!pdf) return;
+            
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: pdf.title,
+                        text: `${pdf.school} - ${pdf.subject} sınaq PDF`,
+                        url: window.location.href
+                    });
+                    showToast('📤 Paylaşıldı!', 'success');
+                } catch (err) {
+                    console.log('Paylaşma ləğv edildi');
+                }
+            } else {
+                // WhatsApp
+                const url = `https://wa.me/?text=${encodeURIComponent(pdf.title + ' ' + window.location.href)}`;
+                window.open(url, '_blank');
+            }
+        }
+        
+        // 10. PREMIUM MODAL
+        function openPremiumModal() {
+            document.getElementById('premiumModal').classList.add('active');
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+        
+        function checkout(plan) {
+            showToast('💳 Stripe ödəniş səhifəsinə yönləndirilir...', 'info');
+            
+            // Demo - real Stripe inteqrasiyası əlavə edin
+            setTimeout(() => {
+                // Uğurlu ödəniş simulyasiyası
+                isPremium = true;
+                closeModal('premiumModal');
+                updateUI();
+                showToast('🎉 Premium aktivləşdirildi!', 'success');
+                
+                // Firebase-ə saxla
+                localStorage.setItem('premium', 'true');
+            }, 1500);
+        }
+        
+        // 11. TAYMER
+        function toggleTimer() {
+            document.getElementById('timerWidget').classList.toggle('active');
+        }
+        
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                updateTimerDisplay();
+                if (timerSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    showToast('⏰ Vaxt bitdi!', 'warning');
+                }
+            }, 1000);
+            showToast('⏱️ Taymer işə düşdü', 'success');
+        }
+        
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            showToast('⏸️ Taymer dayandırıldı', 'info');
+        }
+        
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerSeconds = 10800;
+            updateTimerDisplay();
+            showToast('↺ Taymer sıfırlandı', 'info');
+        }
+        
+        function updateTimerDisplay() {
+            const hours = Math.floor(timerSeconds / 3600);
+            const mins = Math.floor((timerSeconds % 3600) / 60);
+            const secs = timerSeconds % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${String(hours).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+        }
+        
+        // 12. CHATBOT
+        function toggleChatbot() {
+            document.getElementById('chatbotWidget').classList.toggle('active');
+            document.getElementById('chatbotToggle').style.display = 
+                document.getElementById('chatbotWidget').classList.contains('active') ? 'none' : 'flex';
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+            
+            const messages = document.getElementById('chatMessages');
+            messages.innerHTML += `<div class="message user">${escapeHtml(msg)}</div>`;
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+            
+            setTimeout(() => {
+                const reply = generateAIResponse(msg);
+                messages.innerHTML += `<div class="message bot">${reply}</div>`;
+                messages.scrollTop = messages.scrollHeight;
+                addXP(5);
+            }, 1000);
+        }
+        
+        function generateAIResponse(msg) {
+            const lower = msg.toLowerCase();
+            if (lower.includes('salam')) return 'Salam! 👋 Sizə necə kömək edə bilərəm?';
+            if (lower.includes('buraxılış')) return 'Buraxılış imtahanları 9 və 11-ci siniflər üçün mart-aprel aylarında keçirilir.';
+            if (lower.includes('premium')) return 'Premium üzvlük ilə limitsiz PDF yükləyə, offline rejimdən istifadə edə bilərsiniz.';
+            if (lower.includes('qiymət') || lower.includes('azn')) return 'Aylıq: 5 AZN, İllik: 50 AZN (17% qənaət), Lifetime: 199 AZN';
+            if (lower.includes('yüklə')) return 'PDF-ləri yükləmək üçün "Yüklə" düyməsinə basın. Pulsuz istifadəçilər gündə 3 PDF yükləyə bilər.';
+            return 'Maraqlı sualdır! 🤔 Daha ətraflı məlumat üçün axtarış bölməsindən istifadə edin və ya premium alın.';
+        }
+        
+        // 13. GAMIFICATION
+        function addXP(amount) {
+            xp += amount;
+            const maxXP = level * 100;
+            
+            if (xp >= maxXP) {
+                level++;
+                xp = xp - maxXP;
+                showToast(`🎉 Təbriklər! ${level}-ci səviyyəyə yüksəldiniz!`, 'success');
+                document.getElementById('levelBadge').dataset.level = level;
+                document.getElementById('userLevel').textContent = level;
+            }
+            
+            const percent = (xp / maxXP) * 100;
+            document.getElementById('xpFill').style.height = percent + '%';
+            document.getElementById('xpText').textContent = `${xp}/${maxXP}`;
+            document.getElementById('xpFill').style.setProperty('--xp-percent', percent + '%');
+        }
+        
+        // 14. TÖVSİYƏLƏR
+        function generateRecommendations() {
+            const recs = currentResults.filter((p, i) => i >= 3 && i < 6);
+            if (recs.length > 0) {
+                document.getElementById('recommendations').style.display = 'block';
+                document.getElementById('rec-grid').innerHTML = recs.map(p => createPDFCard(p, 0)).join('');
+            }
+        }
+        
+        // 15. ADMIN PANEL
+        function toggleAdmin() {
+            document.getElementById('adminPanel').classList.toggle('active');
+            
+            if (document.getElementById('adminPanel').classList.contains('active')) {
+                // Chart.js qrafiki
+                const ctx = document.getElementById('adminChart');
+                if (ctx && !ctx.chart) {
+                    ctx.chart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: ['B.e.', 'Ç.a.', 'Ç.', 'C.a.', 'C.', 'Ş.', 'B.'],
+                            datasets: [{
+                                label: 'Günlük yükləmələr',
+                                data: [65, 59, 80, 81, 56, 95, 40],
+                                borderColor: '#667eea',
+                                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false
+                        }
+                    });
+                }
+            }
+        }
+        
+        function addNewPDF() {
+            const title = document.getElementById('adminTitle').value;
+            const grade = document.getElementById('adminGrade').value;
+            
+            if (!title || !grade) {
+                showToast('❌ Bütün sahələri doldurun', 'error');
+                return;
+            }
+            
+            showToast('📤 PDF əlavə edilir...', 'info');
+            setTimeout(() => {
+                showToast('✅ PDF uğurla əlavə edildi!', 'success');
+                document.getElementById('adminTitle').value = '';
+                document.getElementById('adminFile').value = '';
+            }, 1500);
+        }
+        
+        // 16. UI FUNKSİYALARI
+        function toggleUserMenu() {
+            document.getElementById('userDropdown').classList.toggle('active');
+        }
+        
+        function updateUI() {
+            document.getElementById('creditCount').textContent = credits;
+            
+            if (isPremium) {
+                document.getElementById('userPremiumBadge').classList.add('active');
+                document.getElementById('creditsDisplay').classList.add('premium');
+                document.getElementById('creditsDisplay').innerHTML = '💎 PREMIUM - Limitsiz';
+                document.getElementById('premiumBanner').style.display = 'none';
+            }
+        }
+        
+        function showProfile() {
+            showToast('👤 Profil səhifəsi (tezliklə)', 'info');
+        }
+        
+        function showFavorites() {
+            const favPDFs = currentResults.filter(p => favorites.has(p.id));
+            if (favPDFs.length === 0) {
+                showToast('⭐ Hələ sevimli yoxdur', 'info');
+                return;
+            }
+            displayResults(favPDFs);
+            showToast(`⭐ ${favPDFs.length} sevimli PDF göstərilir`, 'success');
+        }
+        
+        function showDownloads() {
+            if (downloads.length === 0) {
+                showToast('⬇️ Hələ yükləmə yoxdur', 'info');
+                return;
+            }
+            showToast(`⬇️ ${downloads.length} PDF yüklənib`, 'info');
+        }
+        
+        function showStats() {
+            showToast('📊 Statistika səhifəsi (tezliklə)', 'info');
+        }
+        
+        function showSettings() {
+            showToast('⚙️ Tənzimləmələr (tezliklə)', 'info');
+        }
+        
+        function logout() {
+            showToast('👋 Çıxış edildi', 'info');
+            location.reload();
+        }
+        
+        // 17. KÖMƏKÇİ FUNKSİYALAR
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('active', show);
+        }
+        
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            
+            setTimeout(() => toast.remove(), 4000);
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Click outside to close dropdowns
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.user-dropdown') && !e.target.closest('.icon-btn')) {
+                document.getElementById('userDropdown').classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
