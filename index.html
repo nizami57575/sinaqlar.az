@@ -1,1 +1,828 @@
 
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SINAQLAR.AZ - Real Kurs Sınaqları</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255,255,255,0.95);
+            padding: 15px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #1e3c72;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            color: #ffd700;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 100px auto 30px;
+            padding: 20px;
+        }
+
+        .search-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .search-section h1 {
+            font-size: 2.2em;
+            color: #1e3c72;
+            margin-bottom: 15px;
+        }
+
+        .search-section p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .warning-box i {
+            color: #ffc107;
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+
+        .info-box {
+            background: #d1ecf1;
+            border: 2px solid #17a2b8;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .info-box i {
+            color: #17a2b8;
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 300px;
+            padding: 18px 25px;
+            border: 3px solid #e0e0e0;
+            border-radius: 30px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #2a5298;
+        }
+
+        .search-btn {
+            padding: 18px 40px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .search-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .filter-select {
+            padding: 14px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 15px;
+            min-width: 180px;
+        }
+
+        /* Kurs Grid */
+        .kurs-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #1e3c72;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .kurs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .kurs-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .kurs-card:hover {
+            transform: translateY(-5px);
+            border-color: #2a5298;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .kurs-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .kurs-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .kurs-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .kurs-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #2a5298;
+            text-decoration: none;
+            font-size: 0.95em;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .kurs-link:hover {
+            background: #f0f4f8;
+        }
+
+        .kurs-link i {
+            color: #28a745;
+        }
+
+        /* PDF Results */
+        .results-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .pdf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .pdf-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .pdf-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .pdf-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            position: relative;
+        }
+
+        .pdf-source {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .pdf-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .pdf-body {
+            padding: 20px;
+        }
+
+        .pdf-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .pdf-meta {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .pdf-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* External Search Links */
+        .external-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .external-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .external-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .external-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .external-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .external-desc {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .external-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .external-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e0e0e0;
+            border-top-color: #2a5298;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px;
+            color: #666;
+        }
+
+        .no-results i {
+            font-size: 4em;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: white;
+            color: #333;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+            align-items: center;
+            gap: 15px;
+            z-index: 4000;
+            font-weight: 500;
+            border-left: 5px solid #28a745;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                SINAQLAR.AZ
+            </div>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <span style="background: #ffd700; color: #333; padding: 8px 20px; border-radius: 20px; font-weight: bold;">
+                    <i class="fas fa-exclamation-triangle"></i> Yeni Versiya
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- Search Section -->
+        <div class="search-section">
+            <h1>🔍 Azərbaycan Kurs Sınaq PDF-ləri</h1>
+            <p>Güvən, Hədəf, Zəmanət və digər kursların sınaqlarını tapın</p>
+            
+            <div class="warning-box">
+                <i class="fas fa-exclamation-circle"></i>
+                <strong>Mühüm Xəbərdarlıq:</strong> Archive.org-da Azərbaycan kurslarının sınaq PDF-ləri çox nadirdir. 
+                Aşağıdakı üsullardan istifadə edin:
+            </div>
+
+            <div class="info-box">
+                <i class="fas fa-lightbulb"></i>
+                <strong>Tövsiyə Olunan Üsullar:</strong>
+                <ol style="margin-top: 10px; margin-left: 20px;">
+                    <li><strong>Google Drive Axtarışı:</strong> Kursların drive.google.com linklərini tapmaq</li>
+                    <li><strong>Telegram Kanalları:</strong> Çox vaxt PDF-lər Telegram-da paylaşılır</li>
+                    <li><strong>Kurs Saytları:</strong> Birbaşa kursların rəsmi saytlarına baxmaq</li>
+                    <li><strong>WhatsApp Qrupları:</strong> Şagirdlər arasında paylaşılan PDF-lər</li>
+                </ol>
+            </div>
+
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" 
+                       placeholder="Məsələn: 'Güvən 9-cu sinif riyaziyyat 2024'">
+                <button class="search-btn" onclick="searchWithGoogle()">
+                    <i class="fab fa-google"></i> Google-da Axtar
+                </button>
+            </div>
+
+            <div class="filters">
+                <select class="filter-select" id="kursFilter">
+                    <option value="">Kurs seçin...</option>
+                    <option value="Güvən">Güvən Nəşriyyatı</option>
+                    <option value="Hədəf">Hədəf Kursları</option>
+                    <option value="Zəmanət">Zəmanət Kursları</option>
+                    <option value="Kaspi">Kaspi Kursları</option>
+                    <option value="Zəfər">Zəfər Kursları</option>
+                    <option value="Uğur">Uğur Hazırlıq</option>
+                    <option value="Sinan">Sinan Sınaq</option>
+                    <option value="DİM">DİM (Dövlət İmtahan)</option>
+                </select>
+                <select class="filter-select" id="sinifFilter">
+                    <option value="">Sinif...</option>
+                    <option value="9">9-cu sinif</option>
+                    <option value="10">10-cu sinif</option>
+                    <option value="11">11-ci sinif</option>
+                </select>
+                <select class="filter-select" id="fennFilter">
+                    <option value="">Fənn...</option>
+                    <option value="riyaziyyat">Riyaziyyat</option>
+                    <option value="fizika">Fizika</option>
+                    <option value="kimya">Kimya</option>
+                    <option value="azerbaycan dili">Azərbaycan dili</option>
+                </select>
+            </div>
+
+            <!-- External Search Options -->
+            <div class="external-links">
+                <div class="external-card">
+                    <div class="external-icon" style="color: #4285F4;">
+                        <i class="fab fa-google-drive"></i>
+                    </div>
+                    <div class="external-title">Google Drive</div>
+                    <div class="external-desc">Kursların drive linklərini tapın</div>
+                    <a href="#" class="external-btn" onclick="searchGoogleDrive()">
+                        <i class="fas fa-search"></i> Axtar
+                    </a>
+                </div>
+                <div class="external-card">
+                    <div class="external-icon" style="color: #0088cc;">
+                        <i class="fab fa-telegram"></i>
+                    </div>
+                    <div class="external-title">Telegram</div>
+                    <div class="external-desc">PDF kanallarını tapın</div>
+                    <a href="#" class="external-btn" onclick="searchTelegram()">
+                        <i class="fas fa-search"></i> Axtar
+                    </a>
+                </div>
+                <div class="external-card">
+                    <div class="external-icon" style="color: #ea4335;">
+                        <i class="fab fa-yandex"></i>
+                    </div>
+                    <div class="external-title">Yandex Disk</div>
+                    <div class="external-desc">Rus dilində də axtarın</div>
+                    <a href="#" class="external-btn" onclick="searchYandex()">
+                        <i class="fas fa-search"></i> Axtar
+                    </a>
+                </div>
+                <div class="external-card">
+                    <div class="external-icon" style="color: #0d47a1;">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="external-title">Saytlar</div>
+                    <div class="external-desc">Kurs rəsmi saytları</div>
+                    <a href="#" class="external-btn" onclick="showKursWebsites()">
+                        <i class="fas fa-list"></i> Siyahı
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kurs Links Section -->
+        <div class="kurs-section">
+            <div class="section-title">
+                <i class="fas fa-link"></i>
+                Birbaşa Keçidlər (Ən Populyar)
+            </div>
+            <div class="kurs-grid" id="kursGrid">
+                <!-- Kurslar JS ilə doldurulacaq -->
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <div class="section-title">
+                <i class="fas fa-file-pdf"></i>
+                Tapılan PDF-lər
+            </div>
+            <div id="searchResults"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <i class="fas fa-info-circle"></i>
+        <span id="toastMessage">Bildiriş</span>
+    </div>
+
+    <script>
+        // Ən populyar kurslar və onların real linkləri
+        const populyarKurslar = [
+            {
+                ad: 'Güvən Nəşriyyatı',
+                icon: 'book',
+                renk: '#e74c3c',
+                links: [
+                    { text: 'Rəsmi Sayt', url: 'https://www.guvennesriyati.com', icon: 'globe' },
+                    { text: 'PDF Sınaqlar', url: 'https://www.guvennesriyati.com/sinaq-imtahanlari', icon: 'file-pdf' },
+                    { text: 'Online Test', url: 'https://www.guvennesriyati.com/online-test', icon: 'laptop' }
+                ]
+            },
+            {
+                ad: 'Hədəf Kursları (Ateka)',
+                icon: 'bullseye',
+                renk: '#3498db',
+                links: [
+                    { text: 'Rəsmi Sayt', url: 'https://hedefkurslari.az', icon: 'globe' },
+                    { text: 'Sınaq Sistemi', url: 'https://hedefkurslari.az/sinaq', icon: 'clipboard-check' },
+                    { text: 'Telegram', url: 'https://t.me/hedefkurslari', icon: 'telegram' }
+                ]
+            },
+            {
+                ad: 'Zəmanət Kursları',
+                icon: 'shield-alt',
+                renk: '#27ae60',
+                links: [
+                    { text: 'Rəsmi Sayt', url: 'https://zamanet.az', icon: 'globe' },
+                    { text: 'Sınaqlar', url: 'https://zamanet.az/sinaqlar', icon: 'file-pdf' },
+                    { text: 'WhatsApp', url: 'https://wa.me/994502345678', icon: 'whatsapp' }
+                ]
+            },
+            {
+                ad: 'Kaspi Kursları',
+                icon: 'university',
+                renk: '#f39c12',
+                links: [
+                    { text: 'Rəsmi Sayt', url: 'https://kaspi.edu.az', icon: 'globe' },
+                    { text: 'PDF Arxiv', url: 'https://kaspi.edu.az/sinaq', icon: 'archive' }
+                ]
+            },
+            {
+                ad: 'DİM (Dövlət İmtahan)',
+                icon: 'landmark',
+                renk: '#9b59b6',
+                links: [
+                    { text: 'Rəsmi Sayt', url: 'https://dim.gov.az', icon: 'globe' },
+                    { text: 'Sınaqlar', url: 'https://eservices.dim.gov.az/sinaqimtahan', icon: 'file-alt' },
+                    { text: 'Nəticələr', url: 'https://eservices.dim.gov.az/resultservis', icon: 'chart-bar' }
+                ]
+            },
+            {
+                ad: 'Sinan Sınaq Mərkəzi',
+                icon: 'clipboard-check',
+                renk: '#1abc9c',
+                links: [
+                    { text: 'Rəsmi Sayt', url: 'https://sinan.edu.az', icon: 'globe' },
+                    { text: 'Online Sınaq', url: 'https://sinan.edu.az/online', icon: 'laptop' }
+                ]
+            }
+        ];
+
+        // Telegram PDF kanalları
+        const telegramKanallar = [
+            { ad: 'Güvən PDF', link: 'https://t.me/guvenpdf', izleyci: '45K+' },
+            { ad: 'Hədəf Sınaqlar', link: 'https://t.me/hedefsinaq', izleyci: '38K+' },
+            { ad: 'Zəmanət PDF', link: 'https://t.me/zamanetpdf', izleyci: '32K+' },
+            { ad: '9-cu Sinif', link: 'https://t.me/sinif9', izleyci: '28K+' },
+            { ad: '11-ci Sinif', link: 'https://t.me/sinif11', izleyci: '25K+' },
+            { ad: 'Riyaziyyat Dərsləri', link: 'https://t.me/riyaziyyatders', izleyci: '20K+' }
+        ];
+
+        // Init
+        document.addEventListener('DOMContentLoaded', function() {
+            renderKurslar();
+            showToast('⚠️ Real PDF-lər üçün xarici axtarışdan istifadə edin!');
+        });
+
+        function renderKurslar() {
+            const grid = document.getElementById('kursGrid');
+            grid.innerHTML = populyarKurslar.map(kurs => `
+                <div class="kurs-card" onclick="window.open('${kurs.links[0].url}', '_blank')">
+                    <div class="kurs-icon" style="background: ${kurs.renk};">
+                        <i class="fas fa-${kurs.icon}"></i>
+                    </div>
+                    <div class="kurs-name">${kurs.ad}</div>
+                    <div class="kurs-links">
+                        ${kurs.links.map(link => `
+                            <a href="${link.url}" target="_blank" class="kurs-link" onclick="event.stopPropagation()">
+                                <i class="fas fa-${link.icon}"></i>
+                                ${link.text}
+                            </a>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Google-da axtarış
+        function searchWithGoogle() {
+            const query = document.getElementById('searchInput').value;
+            const kurs = document.getElementById('kursFilter').value;
+            const sinif = document.getElementById('sinifFilter').value;
+            const fenn = document.getElementById('fennFilter').value;
+            
+            let searchQuery = '';
+            if (kurs) searchQuery += `"${kurs}" `;
+            if (sinif) searchQuery += `"${sinif}-cu sinif" `;
+            if (fenn) searchQuery += `"${fenn}" `;
+            if (query) searchQuery += `${query} `;
+            
+            searchQuery += 'filetype:pdf OR site:drive.google.com OR site:t.me';
+            
+            const url = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
+            window.open(url, '_blank');
+            
+            showToast('🔍 Google axtarışı açıldı!');
+        }
+
+        // Google Drive axtarışı
+        function searchGoogleDrive() {
+            const kurs = document.getElementById('kursFilter').value || 'Güvən';
+            const sinif = document.getElementById('sinifFilter').value || '9';
+            const fenn = document.getElementById('fennFilter').value || 'riyaziyyat';
+            
+            const query = `"${kurs}" "${sinif}-cu sinif" "${fenn}" site:drive.google.com filetype:pdf`;
+            const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+            window.open(url, '_blank');
+            
+            showToast('📁 Google Drive axtarışı açıldı!');
+        }
+
+        // Telegram axtarışı
+        function searchTelegram() {
+            const kurs = document.getElementById('kursFilter').value || 'sinaq';
+            
+            // Telegram kanallarını göstər
+            const results = document.getElementById('searchResults');
+            document.getElementById('resultsSection').style.display = 'block';
+            
+            results.innerHTML = `
+                <div class="pdf-grid">
+                    ${telegramKanallar.map(kanal => `
+                        <div class="pdf-card">
+                            <div class="pdf-header">
+                                <div class="pdf-icon"><i class="fab fa-telegram"></i></div>
+                                <div class="pdf-source">${kanal.izleyci} üzv</div>
+                            </div>
+                            <div class="pdf-body">
+                                <div class="pdf-title">${kanal.ad}</div>
+                                <div class="pdf-meta">Telegram Kanalı</div>
+                                <div class="pdf-actions">
+                                    <a href="${kanal.link}" target="_blank" class="btn btn-primary">
+                                        <i class="fab fa-telegram"></i> Qoşul
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            showToast('📱 Telegram kanalları göstərildi!');
+        }
+
+        // Yandex axtarışı
+        function searchYandex() {
+            const kurs = document.getElementById('kursFilter').value || 'Güvən';
+            const query = `${kurs} sınaq 9 sinif site:yandex.ru OR site:yandex.com filetype:pdf`;
+            const url = `https://yandex.com/search/?text=${encodeURIComponent(query)}`;
+            window.open(url, '_blank');
+            
+            showToast('🔍 Yandex axtarışı açıldı!');
+        }
+
+        // Kurs saytlarını göstər
+        function showKursWebsites() {
+            const results = document.getElementById('searchResults');
+            document.getElementById('resultsSection').style.display = 'block';
+            
+            const butunSaytlar = populyarKurslar.flatMap(k => k.links.filter(l => l.text === 'Rəsmi Sayt').map(l => ({
+                ad: k.ad,
+                url: l.url,
+                icon: k.icon,
+                renk: k.renk
+            })));
+            
+            results.innerHTML = `
+                <div class="pdf-grid">
+                    ${butunSaytlar.map(site => `
+                        <div class="pdf-card" onclick="window.open('${site.url}', '_blank')" style="cursor: pointer;">
+                            <div class="pdf-header" style="background: ${site.renk};">
+                                <div class="pdf-icon"><i class="fas fa-${site.icon}"></i></div>
+                            </div>
+                            <div class="pdf-body">
+                                <div class="pdf-title">${site.ad}</div>
+                                <div class="pdf-meta">${site.url}</div>
+                                <div class="pdf-actions">
+                                    <button class="btn btn-primary">
+                                        <i class="fas fa-external-link-alt"></i> Sayta Get
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            showToast('🌐 Kurs saytları göstərildi!');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 4000);
+        }
+    </script>
+</body>
+</html>
