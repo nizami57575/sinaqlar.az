@@ -1,2 +1,0 @@
-# sinaqlar.az
-SINAQLAR.AZ
